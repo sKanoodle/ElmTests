@@ -1,0 +1,68 @@
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput, onClick)
+
+main = beginnerProgram { model = Model 0 0 0 0 "Ergebnis", view = view, update = update }
+
+-- MODEL
+
+type alias Model = 
+  { amount : Int
+  , startYear : Int
+  , tenor : Int
+  , interestRate : Int
+  , result : String
+  }
+
+
+-- UPDATE
+
+type Msg
+    = Amount String
+    | StartYear String
+    | Tenor String
+    | InterestRate String
+    | Calculate
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Amount amount ->
+      { model | amount = String.toInt amount |> Result.toMaybe |> Maybe.withDefault 0 }
+    StartYear year ->
+      { model | startYear = String.toInt year |> Result.toMaybe |> Maybe.withDefault 0 }
+    Tenor tenor ->
+      { model | tenor = String.toInt tenor |> Result.toMaybe |> Maybe.withDefault 0 }
+    InterestRate rate ->
+      { model | interestRate = String.toInt rate |> Result.toMaybe |> Maybe.withDefault 0 }
+    Calculate ->
+      { model | result = toString (model.amount * model.interestRate ^ model.tenor) ++ " Euro" }
+
+
+-- VIEW
+
+view : Model -> Html Msg
+view model =
+  div []
+  [ 
+    div []
+    [ text "Betrag in Euro"
+    , input [ type_ "text", onInput Amount ] []
+    ]
+  , div []
+    [ text "Startjahr"
+    , input [ type_ "text", onInput StartYear ] []
+    ]
+  , div []
+    [ text "Laufzeit in Jahren"
+    , input [ type_ "text", onInput Tenor ] []
+    ]
+  , div []
+    [ text "Betrag in Euro"
+    , input [ type_ "text", onInput InterestRate ] []
+    ]
+  , div []
+    [ button [ onClick Calculate ] [ text "Berechne!" ]
+    , text model.result
+    ]
+  ]
