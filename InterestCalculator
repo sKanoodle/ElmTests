@@ -7,10 +7,10 @@ main = beginnerProgram { model = Model 0 0 0 0 "Ergebnis", view = view, update =
 -- MODEL
 
 type alias Model = 
-  { amount : Int
+  { amount : Float
   , startYear : Int
   , tenor : Int
-  , interestRate : Int
+  , interestRate : Float
   , result : String
   }
 
@@ -22,22 +22,22 @@ type Msg
     | StartYear String
     | Tenor String
     | InterestRate String
-    | Calculate
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
     Amount amount ->
-      { model | amount = String.toInt amount |> Result.toMaybe |> Maybe.withDefault 0 }
+      calculate { model | amount = String.toFloat amount |> Result.toMaybe |> Maybe.withDefault 0 }
     StartYear year ->
-      { model | startYear = String.toInt year |> Result.toMaybe |> Maybe.withDefault 0 }
+      calculate { model | startYear = String.toInt year |> Result.toMaybe |> Maybe.withDefault 0 }
     Tenor tenor ->
-      { model | tenor = String.toInt tenor |> Result.toMaybe |> Maybe.withDefault 0 }
+      calculate { model | tenor = String.toInt tenor |> Result.toMaybe |> Maybe.withDefault 0 }
     InterestRate rate ->
-      { model | interestRate = String.toInt rate |> Result.toMaybe |> Maybe.withDefault 0 }
-    Calculate ->
-      { model | result = toString (model.amount * model.interestRate ^ model.tenor) ++ " Euro" }
-
+      calculate { model | interestRate = String.toFloat rate |> Result.toMaybe |> Maybe.withDefault 0 }
+      
+calculate : Model -> Model
+calculate model =
+  { model | result = toString (model.amount * (1 + model.interestRate) ^ toFloat model.tenor) ++ " Euro" }
 
 -- VIEW
 
@@ -58,11 +58,12 @@ view model =
     , input [ type_ "text", onInput Tenor ] []
     ]
   , div []
-    [ text "Betrag in Euro"
+    [ text "Zinssatz"
     , input [ type_ "text", onInput InterestRate ] []
     ]
   , div []
-    [ button [ onClick Calculate ] [ text "Berechne!" ]
+    [ button [] [ text "Berechne!" ]
     , text model.result
     ]
   ]
+
